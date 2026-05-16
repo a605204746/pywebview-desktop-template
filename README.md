@@ -3,7 +3,7 @@
 [English](./README_EN.md) | **中文**
 
 基于 **pywebview + React + Vite** 的 PC 桌面应用模板，适合快速搭建带原生窗口、系统托盘、本地持久化的桌面工具。
-
+![img.png](img/img.png)
 前端可整体替换为 Vue、Svelte 等任意框架——Python 后端和桥接层保持不变。
 
 ---

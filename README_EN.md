@@ -5,7 +5,7 @@
 A PC desktop application template built with **pywebview + React + Vite**, ideal for quickly creating desktop tools with native windows, system tray, and local persistence.
 
 The frontend can be entirely replaced with Vue, Svelte, or any other framework — the Python backend and bridge layer remain unchanged.
-
+![img.png](img.png)
 ---
 
 ## Prerequisites
