@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+output/
+.pyarmor/
+.venv/
+
+# uv（锁文件建议提交，视团队习惯决定）
+# uv.lock
+
+# Node
+node_modules/
+frontend/dist/
+
+# 运行时产物
+data/*
+
+# 根目录遗留的运行时文件
+app.db
+settings.json
+
+# IDE
+.idea/
+.vscode/
+
+# 打包临时文件
+config/assets/_build_icon.ico
+
+# 授权码私钥（严禁提交）
+scripts/private.pem
+
+# Misc
+*.log
+.DS_Store

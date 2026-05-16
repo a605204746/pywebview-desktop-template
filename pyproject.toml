@@ -1,0 +1,21 @@
+[project]
+name = "desktop-app"
+version = "1.0.0"
+description = "pywebview 桌面应用模板"
+requires-python = ">=3.11"
+dependencies = [
+    "pywebview>=4.4",
+    "pythonnet>=3.0",
+    "pystray>=0.19.5",
+    "pillow>=10.0.0",
+    "cryptography>=42.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyarmor>=8.0",
+    "pyinstaller>=6.0",
+]
+
+[tool.uv]
+python-preference = "only-managed"

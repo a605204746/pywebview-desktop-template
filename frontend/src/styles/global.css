@@ -1,0 +1,130 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── CSS 自定义属性（浅色模式） ─────────────────────────────── */
+:root {
+  /* RGB 分量，用于 rgb()/rgba() 动态透明度 */
+  --wt:       78,  139, 111;     /* 豆沙绿 */
+  --wt-text:  20,  55,  38;      /* 深绿文字 */
+  --wt-sub:   65,  110, 85;      /* 次要文字 */
+  --bg-card:  255, 255, 255;     /* 卡片底色 */
+
+  /* 完整渐变（不能用 rgb 分量拼） */
+  --sidebar-bg: linear-gradient(180deg, #C5E2D4 0%, #BAE0CE 60%, #ADDDC7 100%);
+  --content-bg: linear-gradient(135deg, #D6EDE2 0%, #CEEADA 50%, #C5E6D5 100%);
+  --body-bg: #D6EDE2;
+
+  /* antd 主色 */
+  --antd-primary: #4E8B6F;
+
+  /* 阴影 */
+  --shadow: rgba(78, 139, 111, 0.12);
+
+  /* 便签颜色（浅色模式） */
+  --note-1-bg: #FFF3E0;
+  --note-2-bg: #F0FFF4;
+  --note-3-bg: #FFFBE6;
+  --note-4-bg: #E6F4FF;
+  --note-5-bg: #FFF0F6;
+}
+
+/* ── 暗色模式覆盖 ───────────────────────────────────────────── */
+[data-theme="dark"] {
+  --wt:       120, 185, 150;     /* 薄荷绿（暗底下更亮） */
+  --wt-text:  200, 235, 215;     /* 浅绿奶油文字 */
+  --wt-sub:   115, 160, 135;     /* 次要文字 */
+  --bg-card:  10,  28,  18;      /* 深绿底 */
+
+  --sidebar-bg: linear-gradient(180deg, #060E09 0%, #091409 60%, #0D1A12 100%);
+  --content-bg: linear-gradient(135deg, #0D1F16 0%, #101C14 50%, #142419 100%);
+  --body-bg: #0D1F16;
+
+  --antd-primary: #78B996;
+
+  --shadow: rgba(0, 0, 0, 0.3);
+
+  /* 便签颜色（深色模式，保留色调但降低亮度） */
+  --note-1-bg: rgba(38, 26, 8,  0.9);   /* 暗琥珀 */
+  --note-2-bg: rgba(8,  26, 16, 0.9);   /* 暗绿 */
+  --note-3-bg: rgba(30, 26, 6,  0.9);   /* 暗黄 */
+  --note-4-bg: rgba(6,  16, 36, 0.9);   /* 暗蓝 */
+  --note-5-bg: rgba(36, 8,  24, 0.9);   /* 暗粉 */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: 14px;
+  background: var(--body-bg);
+  color: rgb(var(--wt-text));
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ── 核桃色滚动条 ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(var(--wt), 0.07); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(var(--wt), 0.28); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--wt), 0.5); }
+
+/* ── 动画 ────────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+@keyframes pop-in {
+  0%   { transform: scale(0.8); opacity: 0; }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.float-emoji {
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  min-width: 180px;
+  max-width: 320px;
+  cursor: pointer;
+  pointer-events: all;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.25s, transform 0.25s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.toast--in { opacity: 1; transform: translateX(0); }
+.toast--success { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
+.toast--error   { background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322; }
+.toast--warning { background: #fffbe6; border: 1px solid #ffe58f; color: #d46b08; }
+.toast--info    { background: #e6f4ff; border: 1px solid #91caff; color: #0958d9; }
+
+[data-theme="dark"] .toast--success { background: #162312; border-color: #274916; color: #49aa19; }
+[data-theme="dark"] .toast--error   { background: #2a1215; border-color: #58181c; color: #e84749; }
+[data-theme="dark"] .toast--warning { background: #2b2111; border-color: #594214; color: #e8a61a; }
+[data-theme="dark"] .toast--info    { background: #111d2c; border-color: #15325b; color: #3c9ae8; }
+
+/* ── 菜单字体加粗 ────────────────────────────────────────────── */
+.ant-menu-item,
+.ant-menu-submenu-title,
+.ant-menu-item-group-title { font-weight: 600; }
