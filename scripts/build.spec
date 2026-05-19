@@ -21,27 +21,57 @@ if not OBF_BACKEND.exists():
 
 # 需要打包的 Python 包（collect_all 自动收录子模块 + 数据文件）
 PACKAGES = [
-    'webview',     # pywebview
-    'pythonnet',   # 导入名是 clr，pip 包名是 pythonnet
-    'clr_loader',  # pythonnet 3.x 运行时加载器
+    'webview',        # pywebview
+    'pythonnet',      # 导入名是 clr，pip 包名是 pythonnet
+    'clr_loader',     # pythonnet 3.x 运行时加载器
     'pystray',
-    'PIL',         # pillow
+    'PIL',            # pillow
+    'cryptography',   # secret/ 模块依赖，PyArmor 混淆后静态分析不到
 ]
 
-# 静态分析找不到的隐式导入（按需添加）
+# 静态分析找不到的隐式导入
+# 只需填写"源文件里没有显式 import 语句"的特殊模块；
+# 其余依赖由下方自动扫描填充，无需手动维护。
 HIDDEN_IMPORTS = [
-    'webview.platforms.winforms',
-    'clr',
-    'clr_loader',
-    'ssl',
-    '_ssl',
-    'app_config',           # config/app_config.py 打包为顶层模块
-    'secret',               # config/secret/ 加密工具包
+    'webview.platforms.winforms',  # platform 选择在 pywebview 内部动态加载
+    'clr',                         # pythonnet 顶层别名，动态加载
+    'app_config',                  # config/app_config.py 打包为顶层模块
+    'secret',                      # config/secret/ 混淆后作为顶层包
     'secret.fingerprint',
     'secret.kdf',
     'secret.cipher',
     'secret.license',
 ]
+
+# ── 自动扫描源文件，补全 PyArmor 混淆后 PyInstaller 无法静态分析的 import ──
+# 解析 backend/ 和 config/secret/ 原始 .py 文件，提取所有绝对 import，
+# 这样新增第三方/stdlib 依赖时无需手动修改本文件。
+import ast as _ast
+
+def _scan_source_imports(dirs: list) -> list[str]:
+    found: set[str] = set()
+    for d in dirs:
+        d = Path(d)
+        if not d.exists():
+            continue
+        for f in d.rglob("*.py"):
+            try:
+                tree = _ast.parse(f.read_text(encoding="utf-8"))
+            except Exception as e:
+                print(f"[auto-imports] 跳过 {f.name}: {e}")
+                continue
+            for node in _ast.walk(tree):
+                if isinstance(node, _ast.Import):
+                    for alias in node.names:
+                        found.add(alias.name)
+                elif isinstance(node, _ast.ImportFrom):
+                    if node.level == 0 and node.module:  # 只收绝对导入，跳过相对导入
+                        found.add(node.module)
+    return sorted(found)
+
+_scanned = _scan_source_imports([ROOT / "backend", ROOT / "config" / "secret"])
+HIDDEN_IMPORTS = list(dict.fromkeys(HIDDEN_IMPORTS + _scanned))  # 合并去重，保留顺序
+print(f"[auto-imports] 自动扫描到 {len(_scanned)} 个模块，合并后共 {len(HIDDEN_IMPORTS)} 个")
 
 # 额外数据文件：(本机路径, 包内目标目录)
 EXTRA_DATAS = [
@@ -192,8 +222,8 @@ except Exception as _e:
 
 # ── Analysis ───────────────────────────────────────────────────
 a = Analysis(
-    [str(OBF_BACKEND / "main.py")],          # 使用混淆后的入口
-    pathex=[str(OBF_BACKEND)],               # 混淆后的模块路径
+    [str(OBF_BACKEND / "backend" / "main.py")],   # 使用混淆后的入口
+    pathex=[str(OBF_BACKEND), str(OBF_BACKEND / "backend")],  # 混淆后的模块路径
     binaries=_bins,
     datas=[
         (str(FRONT),  "frontend/dist"),
